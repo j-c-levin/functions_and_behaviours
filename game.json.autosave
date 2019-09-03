@@ -285,8 +285,8 @@
           "locked": false,
           "name": "player",
           "width": 0,
-          "x": 82,
-          "y": 469,
+          "x": 187,
+          "y": 458,
           "zOrder": 2,
           "numberProperties": [],
           "stringProperties": [],
@@ -300,8 +300,8 @@
           "locked": false,
           "name": "custom_player",
           "width": 0,
-          "x": 242,
-          "y": 396,
+          "x": 98,
+          "y": 506,
           "zOrder": 3,
           "numberProperties": [],
           "stringProperties": [],
@@ -315,8 +315,8 @@
           "locked": false,
           "name": "floor",
           "width": 248,
-          "x": 320,
-          "y": 468,
+          "x": 331,
+          "y": 407,
           "zOrder": 4,
           "numberProperties": [],
           "stringProperties": [],
@@ -332,20 +332,20 @@
           "variables": [],
           "behaviors": [
             {
+              "maxFallingSpeed": 700,
+              "name": "PlatformerObject",
+              "slopeMaxAngle": 0,
+              "type": "PlatformBehavior::PlatformerObjectBehavior",
+              "xGrabTolerance": 100,
+              "yGrabOffset": 0,
               "acceleration": 10000,
               "canGrabPlatforms": true,
               "deceleration": 1500,
               "gravity": 1000,
               "ignoreDefaultControls": false,
               "jumpSpeed": 600,
-              "maxFallingSpeed": 700,
               "maxSpeed": 250,
-              "name": "PlatformerObject",
-              "roundCoordinates": true,
-              "slopeMaxAngle": 60,
-              "type": "PlatformBehavior::PlatformerObjectBehavior",
-              "xGrabTolerance": 10,
-              "yGrabOffset": 0
+              "roundCoordinates": true
             }
           ],
           "animations": [
@@ -618,11 +618,11 @@
           "variables": [],
           "behaviors": [
             {
-              "canBeGrabbed": true,
               "name": "Platform",
-              "platformType": "NormalPlatform",
               "type": "PlatformBehavior::PlatformBehavior",
-              "yGrabOffset": 0
+              "yGrabOffset": 10,
+              "canBeGrabbed": true,
+              "platformType": "NormalPlatform"
             }
           ]
         },
@@ -775,7 +775,7 @@
                   "colorR": 74,
                   "creationTime": 0,
                   "disabled": false,
-                  "folded": false,
+                  "folded": true,
                   "name": "Stand on ground",
                   "source": "",
                   "type": "BuiltinCommonInstructions::Group",
@@ -784,7 +784,7 @@
                       "disabled": false,
                       "folded": false,
                       "type": "BuiltinCommonInstructions::JsCode",
-                      "inlineCode": "// Make the player collide with the floor\nconst player = runtimeScene.getObjects(\"custom_player\")[0];\nconst floors = runtimeScene.getObjects(\"floor\");\nplayer.separateFromObjects(floors);\n",
+                      "inlineCode": "// Make the player collide with the floor\nconst player = runtimeScene.getObjects(\"custom_player\")[0];\nconst floors = runtimeScene.getObjects(\"floor\");\nplayer.separateFromObjects(floors);",
                       "parameterObjects": "Object",
                       "useStrict": true
                     }
@@ -797,8 +797,8 @@
                   "colorR": 74,
                   "creationTime": 0,
                   "disabled": false,
-                  "folded": false,
-                  "name": "Player states",
+                  "folded": true,
+                  "name": "Player states - on_floor, can_jump",
                   "source": "",
                   "type": "BuiltinCommonInstructions::Group",
                   "events": [
@@ -806,9 +806,43 @@
                       "disabled": false,
                       "folded": false,
                       "type": "BuiltinCommonInstructions::JsCode",
-                      "inlineCode": "const player = runtimeScene.getObjects(\"custom_player\")[0];\nconst behaviour = player.getBehavior(\"platform_character\");\nconst floors = runtimeScene.getObjects(\"floor\");\n\nconst x_pos = player.getX();\nconst y_pos = player.getY() + (player.getHeight() / 2) + 10;\n\nvar is_on_floor = false;\nfloors.forEach(floor => {\n    if (floor.isCollidingWithPoint(x_pos, y_pos)) {\n        is_on_floor = true;\n    }\n})\n\n// If the player is on the ground but wasn't before, reset jumping\nif (is_on_floor && behaviour._behaviorData.on_floor === false) {\n    behaviour._behaviorData.can_jump = true;\n}\n\nbehaviour._behaviorData.on_floor = is_on_floor;",
+                      "inlineCode": "// Handles on_floor and can_jump properties\nconst player = runtimeScene.getObjects(\"custom_player\")[0];\nconst behaviour = player.getBehavior(\"platform_character\");\nconst floors = runtimeScene.getObjects(\"floor\");\n\nconst x_pos = player.getX();\nconst y_pos = player.getY() + (player.getHeight() / 2) + 1;\n\nvar is_on_floor = false;\nfloors.forEach(floor => {\n    if (floor.isCollidingWithPoint(x_pos, y_pos)) {\n        is_on_floor = true;\n    }\n})\n\n// If the player is on the ground but wasn't before, reset jumping\nif (is_on_floor && behaviour._behaviorData.on_floor === false) {\n    behaviour._behaviorData.can_jump = true;\n}\n\nbehaviour._behaviorData.on_floor = is_on_floor;",
                       "parameterObjects": "",
                       "useStrict": true
+                    },
+                    {
+                      "disabled": false,
+                      "folded": false,
+                      "type": "BuiltinCommonInstructions::Standard",
+                      "conditions": [
+                        {
+                          "type": {
+                            "inverted": false,
+                            "value": "Vitesse"
+                          },
+                          "parameters": [
+                            "Object",
+                            ">",
+                            "0"
+                          ],
+                          "subInstructions": []
+                        }
+                      ],
+                      "actions": [
+                        {
+                          "type": {
+                            "inverted": false,
+                            "value": "platform_behaviour::platform_character::SetPropertyis_moving"
+                          },
+                          "parameters": [
+                            "Object",
+                            "Behavior",
+                            "yes"
+                          ],
+                          "subInstructions": []
+                        }
+                      ],
+                      "events": []
                     }
                   ],
                   "parameters": []
@@ -819,7 +853,7 @@
                   "colorR": 74,
                   "creationTime": 0,
                   "disabled": false,
-                  "folded": false,
+                  "folded": true,
                   "name": "Horizontal movement",
                   "source": "",
                   "type": "BuiltinCommonInstructions::Group",
@@ -1045,11 +1079,19 @@
                   "colorR": 74,
                   "creationTime": 0,
                   "disabled": false,
-                  "folded": false,
+                  "folded": true,
                   "name": "Jumping and gravity",
                   "source": "",
                   "type": "BuiltinCommonInstructions::Group",
                   "events": [
+                    {
+                      "disabled": false,
+                      "folded": false,
+                      "type": "BuiltinCommonInstructions::JsCode",
+                      "inlineCode": "// Set the jump velocity to zero if the player jumps up into a floor\nconst player = runtimeScene.getObjects(\"custom_player\")[0];\nconst behaviour = player.getBehavior(\"platform_character\");\nconst floors = runtimeScene.getObjects(\"floor\");\n\nconst x_pos = player.getX();\nconst y_pos = player.getY() - (player.getHeight() / 2) - 1;\n\nfloors.forEach(floor => {\n    if (floor.isCollidingWithPoint(x_pos, y_pos)) {\n        behaviour._behaviorData.jump_velocity = 0;\n    }\n})",
+                      "parameterObjects": "",
+                      "useStrict": true
+                    },
                     {
                       "disabled": false,
                       "folded": false,
@@ -1123,19 +1165,7 @@
                       "disabled": false,
                       "folded": false,
                       "type": "BuiltinCommonInstructions::Standard",
-                      "conditions": [
-                        {
-                          "type": {
-                            "inverted": true,
-                            "value": "platform_behaviour::platform_character::Propertyon_floor"
-                          },
-                          "parameters": [
-                            "Object",
-                            "Behavior"
-                          ],
-                          "subInstructions": []
-                        }
-                      ],
+                      "conditions": [],
                       "actions": [
                         {
                           "type": {
@@ -1176,7 +1206,20 @@
                   "creationTime": 0,
                   "disabled": false,
                   "folded": false,
-                  "name": "Add forces",
+                  "name": "Grab ledge",
+                  "source": "",
+                  "type": "BuiltinCommonInstructions::Group",
+                  "events": [],
+                  "parameters": []
+                },
+                {
+                  "colorB": 228,
+                  "colorG": 176,
+                  "colorR": 74,
+                  "creationTime": 0,
+                  "disabled": false,
+                  "folded": true,
+                  "name": "Move the player/Add forces",
                   "source": "",
                   "type": "BuiltinCommonInstructions::Group",
                   "events": [
@@ -1309,6 +1352,14 @@
               "extraInformation": [],
               "hidden": true,
               "name": "on_floor"
+            },
+            {
+              "value": "",
+              "type": "Boolean",
+              "label": "Is the playing moving",
+              "extraInformation": [],
+              "hidden": true,
+              "name": "is_moving"
             }
           ]
         }
